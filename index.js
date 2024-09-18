@@ -26,9 +26,17 @@ async function run(){
         await client.connect();
 
         // all collection
+        const hotlineCollection = client.db('complainportal').collection('hotlines');
+
 
         // all functions
         
+        // get hotlines number
+        app.get('/hotlines', async(req, res)=>{
+            const result = await hotlineCollection.find().toArray();
+            res.send(result);
+        } )
+
     }
     finally{
 
