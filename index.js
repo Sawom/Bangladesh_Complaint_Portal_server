@@ -27,7 +27,7 @@ async function run(){
 
         // all collection
         const hotlineCollection = client.db('complainportal').collection('hotlines');
-
+        const usersCollection = client.db('complainportal').collection('users');
 
         // all functions
         
@@ -36,6 +36,18 @@ async function run(){
             const result = await hotlineCollection.find().toArray();
             res.send(result);
         } )
+
+        // post info of users
+        app.post('/users', async(req, res)=>{
+            const user = req.body;
+            const query = {email: user.email};
+            const existingUser = await usersCollection.findOne(query);
+            if(existingUser){
+                return res.send({ message: 'user already exists!' })
+            }
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
+        })
 
     }
     finally{
