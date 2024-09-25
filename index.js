@@ -36,10 +36,18 @@ async function run(){
             res.send(result);
         } )
 
-        // get all users
-         app.get('/users', async(req, res)=>{
-            const result = await usersCollection.find().toArray();
-            res.send(result);
+        // get all users and email wise user info
+        app.get('/users', async(req, res)=>{
+            const email = req.query.email;
+            if(email){
+                const query = {email: email}
+                const resultSingle = await usersCollection.find(query).toArray();
+                res.send(resultSingle);
+            }
+            else{
+                const result = await usersCollection.find().toArray();
+                res.send(result);
+            }
         } )
 
         // post info of users
