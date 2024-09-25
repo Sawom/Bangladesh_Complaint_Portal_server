@@ -30,10 +30,15 @@ async function run(){
         const usersCollection = client.db('complainportal').collection('users');
 
         // all functions
-        
         // get hotlines number
         app.get('/hotlines', async(req, res)=>{
             const result = await hotlineCollection.find().toArray();
+            res.send(result);
+        } )
+
+        // get all users
+         app.get('/users', async(req, res)=>{
+            const result = await usersCollection.find().toArray();
             res.send(result);
         } )
 
