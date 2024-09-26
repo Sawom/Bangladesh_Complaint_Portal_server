@@ -50,6 +50,14 @@ async function run(){
             }
         } )
 
+        // load single user. need to load single user before put operation
+        app.get('/users/:id', async(req, res)=>{
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await usersCollection.findOne(query);
+            res.send(result)
+        })
+
         // post info of users
         app.post('/users', async(req, res)=>{
             const user = req.body;
@@ -67,10 +75,10 @@ async function run(){
             const id = req.params.id;
             const updateUser = req.body;
             const filter = {_id: new ObjectId(id)};
-            const options = {upsert:true};
+            const options = {upsert: true};
             const updateUserInfo = {
                 $set:{
-                    _id: updateUser._id,
+                    // _id: updateUser._id,
                     name: updateUser.name,
                     address: updateUser.address,
                     img: updateUser.img,
