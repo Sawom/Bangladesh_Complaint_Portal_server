@@ -28,6 +28,7 @@ async function run(){
         // all collection
         const hotlineCollection = client.db('complainportal').collection('hotlines');
         const usersCollection = client.db('complainportal').collection('users');
+        const reviewCollection = client.db('complainportal').collection('reviews');
 
         // all functions
         // get hotlines number
@@ -36,6 +37,7 @@ async function run(){
             res.send(result);
         } )
 
+        //********  user part
         // get all users and email wise user info
         app.get('/users', async(req, res)=>{
             const email = req.query.email;
@@ -89,8 +91,24 @@ async function run(){
             const result = await usersCollection.updateOne(filter, updateUserInfo, options);
             res.send(result);
         } )
+        //********  user part done *********
 
+        //******** review part ******** 
 
+        // post reviews
+        app.post('/reviews', async(req,res)=>{
+            const newReview = req.body;
+            const result = await reviewCollection.insertOne(newReview);
+            res.send(result);
+        })
+
+        // get reviews
+        app.get('/reviews', async(req, res)=>{
+            const result = await reviewCollection.find().toArray();
+            res.send(result);
+        } )
+
+        //******** review part done ******** 
 
 
     }
