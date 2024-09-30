@@ -80,7 +80,6 @@ async function run(){
             const options = {upsert: true};
             const updateUserInfo = {
                 $set:{
-                    // _id: updateUser._id,
                     name: updateUser.name,
                     address: updateUser.address,
                     img: updateUser.img,
@@ -104,8 +103,16 @@ async function run(){
 
         // get reviews
         app.get('/reviews', async(req, res)=>{
-            const result = await reviewCollection.find().toArray();
-            res.send(result);
+            const email = req.query.email;
+            if(email){
+                const query = {email:email};
+                const reviewSingle = await reviewCollection.find(query).toArray();
+                res.send(reviewSingle);
+            }
+            else{
+                const result = await reviewCollection.find().toArray();
+                res.send(result);
+            }
         } )
 
         //******** review part done ******** 
