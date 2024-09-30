@@ -136,8 +136,15 @@ async function run(){
             }
         } )
 
-        //******** review part done ******** 
+        // delete review
+        app.delete('/reviews/:id', async(req, res)=>{
+            const id = req.params.id;
+            const query = {_id: new ObjectId(id)};
+            const result = await reviewCollection.deleteOne(query);
+            res.send(result);
+        } )
 
+        //******** review part done ******** 
 
     }
     finally{
