@@ -38,6 +38,27 @@ async function run(){
         } )
 
         //********  user part
+
+        //********  search user by nid or email, backend search*************
+        app.get('/search/:query', async (req, res) => {
+            try {
+                let query = req.params.query;
+                let result = await usersCollection.find({
+                    "$or": [
+                        { nid: query },    // Search by exact nid match
+                        { email: query }   // Search by exact email match
+                    ]
+                }).toArray();
+
+                // console.log(result);
+                res.send(result);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                res.status(500).send("An error occurred while searching.");
+            }
+        });
+
+
         // get all users and email wise user info
         app.get('/users', async(req, res)=>{
             const email = req.query.email;
