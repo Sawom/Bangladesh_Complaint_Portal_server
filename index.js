@@ -29,6 +29,7 @@ async function run(){
         const hotlineCollection = client.db('complainportal').collection('hotlines');
         const usersCollection = client.db('complainportal').collection('users');
         const reviewCollection = client.db('complainportal').collection('reviews');
+        const homeReviewCollection = client.db('complainportal').collection('homereview');
 
         // all functions
         // get hotlines number
@@ -37,8 +38,13 @@ async function run(){
             res.send(result);
         } )
 
-        //********  user part
+        // get home review
+        app.get('/homereview', async(req, res)=>{
+            const result = await homeReviewCollection.find().toArray();
+            res.send(result);
+        } )
 
+        //********  user part
         //********  search user by nid or email, backend search*************
         app.get('/search/:query', async (req, res) => {
             try {
@@ -111,6 +117,15 @@ async function run(){
             const result = await usersCollection.updateOne(filter, updateUserInfo, options);
             res.send(result);
         } )
+
+        // delete user
+        app.delete('/users/:id', async(req, res)=>{
+            const id = req.params.id;
+            const query = {_id : new ObjectId(id)};
+            const result = await usersCollection.deleteOne(query);
+            res.send(result);
+        })
+
         //********  user part done *********
 
         //******** review part ******** 
