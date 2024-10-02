@@ -64,7 +64,6 @@ async function run(){
             }
         });
 
-
         // get all users and email wise user info
         app.get('/users', async(req, res)=>{
             const email = req.query.email;
@@ -125,11 +124,10 @@ async function run(){
             const result = await usersCollection.deleteOne(query);
             res.send(result);
         })
-
+        
         //********  user part done *********
 
         //******** review part ******** 
-
         // post reviews
         app.post('/reviews', async(req,res)=>{
             const newReview = req.body;
@@ -137,7 +135,7 @@ async function run(){
             res.send(result);
         })
 
-        // get reviews
+        // get reviews both all and email wise
         app.get('/reviews', async(req, res)=>{
             const email = req.query.email;
             if(email){
@@ -150,6 +148,30 @@ async function run(){
                 res.send(result);
             }
         } )
+
+        // load single review
+        app.get('/reviews/:id', async(req,res)=>{
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await reviewCollection.findOne(query);
+            res.send(result);
+        }  )
+
+        // update review
+        app.put('/users/:id', async(req,res)=>{
+            const id = req.params.id;
+            const updateReview = req.body;
+            const filter = {_id: new ObjectId(id) };
+            const options = {upsert: true};
+            const updateReviewInfo = {
+                $set:{
+                    comments: updateReview.comments,
+                    rating: updateReview.rating 
+                }
+            }
+            const result = await reviewCollection.updateOne(filter,updateReviewInfo,options);
+            res.send(result);
+        })
 
         // delete review
         app.delete('/reviews/:id', async(req, res)=>{
