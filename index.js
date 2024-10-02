@@ -124,7 +124,7 @@ async function run(){
             const result = await usersCollection.deleteOne(query);
             res.send(result);
         })
-        
+
         //********  user part done *********
 
         //******** review part ******** 
@@ -158,7 +158,7 @@ async function run(){
         }  )
 
         // update review
-        app.put('/users/:id', async(req,res)=>{
+        app.put('/reviews/:id', async(req,res)=>{
             const id = req.params.id;
             const updateReview = req.body;
             const filter = {_id: new ObjectId(id) };
