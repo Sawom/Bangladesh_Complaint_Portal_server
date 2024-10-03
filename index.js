@@ -45,6 +45,7 @@ async function run(){
         } )
 
         //********  user part
+
         //********  search user by nid or email, backend search*************
         app.get('/search/:query', async (req, res) => {
             try {
@@ -64,18 +65,40 @@ async function run(){
             }
         });
 
-        // get all users and email wise user info
+        // get all users and email wise user info ++ pagination
         app.get('/users', async(req, res)=>{
             const email = req.query.email;
-            if(email){
-                const query = {email: email}
-                const resultSingle = await usersCollection.find(query).toArray();
-                res.send(resultSingle);
+            const page = parseInt(req.query.page) || 1;  // current page start from 1
+            const limit = parseInt(req.query.limit) || 10;  // limit user per page
+            const skip = (page-1) * limit; // Calculate the number of documents to skip
+
+            try{
+                let result;
+                if(email){
+                    const query = {email: email}
+                    result = await usersCollection.find(query).toArray();
+                    res.send(result);
+
+                }
+                else{
+                    const result = await usersCollection.find().skip(skip).limit(limit).toArray();
+                    const totalResults = await usersCollection.countDocuments(); // Count for all documents
+
+                    // Use return here to stop execution
+                    return res.json({ 
+                        users: result,
+                        totalResults,
+                        currentPage: page,
+                        totalPages: Math.ceil(totalResults / limit)
+                    });
+                }
+
             }
-            else{
-                const result = await usersCollection.find().toArray();
-                res.send(result);
+            catch (error) {
+                console.error("Error fetching users:", error);
+                res.status(500).send("An error occurred while fetching users.");
             }
+
         } )
 
         // load single user. need to load single user before put operation
