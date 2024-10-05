@@ -204,7 +204,9 @@ async function run(){
         } )
         //******** review part done ******** 
 
+
         // ******** complains part ********
+        // post complain
         app.post('/complains', async(req, res)=>{
             const newComplain = req.body;
             const result = await complainCollection.insertOne(newComplain);
@@ -248,11 +250,27 @@ async function run(){
             }
         }  )
 
+        // search complain by id and email. backend search part
+        app.get('/search/:query', async (req, res) => {
+            try {
+                let query = req.params.query;
+                let result = await complainCollection.find({
+                    "$or": [
+                        { nid: query },    // Search by exact nid match
+                        { email: query }   // Search by exact email match
+                    ]
+                }).toArray();
+
+                res.send(result);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                res.status(500).send("An error occurred while searching.");
+            }
+        });
 
 
 
 
-        
 
     }
     finally{
