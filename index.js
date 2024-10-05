@@ -30,6 +30,7 @@ async function run(){
         const usersCollection = client.db('complainportal').collection('users');
         const reviewCollection = client.db('complainportal').collection('reviews');
         const homeReviewCollection = client.db('complainportal').collection('homereview');
+        const complainCollection = client.db('complainportal').collection('complains');
 
         // all functions
         // get hotlines number
@@ -44,8 +45,7 @@ async function run(){
             res.send(result);
         } )
 
-        //********  user part
-
+        //********  user part ********
         //********  search user by nid or email, backend search*************
         app.get('/search/:query', async (req, res) => {
             try {
@@ -147,7 +147,6 @@ async function run(){
             const result = await usersCollection.deleteOne(query);
             res.send(result);
         })
-
         //********  user part done *********
 
         //******** review part ******** 
@@ -203,8 +202,57 @@ async function run(){
             const result = await reviewCollection.deleteOne(query);
             res.send(result);
         } )
-
         //******** review part done ******** 
+
+        // ******** complains part ********
+        app.post('/complains', async(req, res)=>{
+            const newComplain = req.body;
+            const result = await complainCollection.insertOne(newComplain);
+            res.send(result);
+        })
+
+        // get all complains and email wise user info ++ pagination
+        app.get('/complains', async(req, res)=>{
+            const email = req.query.email;
+            const page = parseInt(req.query.page) || 1;  // current page start from 1
+            const limit = parseInt(req.query.limit) || 10; // limit data per page
+            const skip = (page - 1) * limit; // Calculate the number of documents to skip
+
+            try{
+                let result;
+                // if user is logged in then his posted complain are showed
+                if(email){
+                    const query = {email: email};
+                    result = await complainCollection.find(query).toArray();
+                    res.send(result);
+                }
+                // all complain data are showed for admin
+                else{
+                    const result = await complainCollection.find().skip(skip).limit(limit).toArray();
+                    const totalComplains = await complainCollection.countDocuments(); // Count for all documents
+
+                    // Use return here to stop execution
+                    return res.json({
+                        complains: result,
+                        totalComplains,
+                        currentPage: page,
+                        totalPages: Math.ceil(totalResults / limit)
+                    })
+
+                }
+
+            }
+            catch (error) {
+                console.error("Error fetching complains:", error);
+                res.status(500).send("An error occurred while fetching complains.");
+            }
+        }  )
+
+
+
+
+
+        
 
     }
     finally{
