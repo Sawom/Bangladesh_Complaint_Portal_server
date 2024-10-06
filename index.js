@@ -157,7 +157,7 @@ async function run(){
             res.send(result);
         })
 
-        // get reviews both all and email wise
+        // get reviews both all and email wise ++ pagination backend
         app.get('/reviews', async(req, res)=>{
             const email = req.query.email;
             const page = parseInt(req.query.page) || 1;  // current page start from 1
@@ -178,7 +178,7 @@ async function run(){
                     // Use return here to stop execution
                     return res.json({
                         reviews: result,
-                        totalReview,
+                        totalReview, // if I want to show ui total number of review, exact this name will set in state
                         currentPage: page,
                         totalPages: Math.ceil(totalReview / limit)
                     })
