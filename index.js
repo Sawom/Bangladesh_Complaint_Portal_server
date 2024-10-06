@@ -160,15 +160,35 @@ async function run(){
         // get reviews both all and email wise
         app.get('/reviews', async(req, res)=>{
             const email = req.query.email;
-            if(email){
-                const query = {email:email};
-                const reviewSingle = await reviewCollection.find(query).toArray();
-                res.send(reviewSingle);
+            const page = parseInt(req.query.page) || 1;  // current page start from 1
+            const limit = parseInt(req.query.limit) || 10; // limit data per page
+            const skip = (page - 1) * limit; // Calculate the number of documents to skip
+
+            try{
+                let result;
+                if(email){
+                    const query = {email:email};
+                    result = await reviewCollection.find(query).toArray();
+                    res.send(result);
+                }
+                // here all review data is showed
+                else{
+                    const result = await reviewCollection.find().skip(skip).limit(limit).toArray(); // keep limits data,others skip
+                    const totalReview = await reviewCollection.countDocuments(); // Count for all documents
+                    // Use return here to stop execution
+                    return res.json({
+                        reviews: result,
+                        totalReview,
+                        currentPage: page,
+                        totalPages: Math.ceil(totalReview / limit)
+                    })
+                }
+
+            }catch (error) {
+                console.error("Error fetching reviews:", error);
+                res.status(500).send("An error occurred while fetching complains.");
             }
-            else{
-                const result = await reviewCollection.find().toArray();
-                res.send(result);
-            }
+            
         } )
 
         // load single review for updating
@@ -291,4 +311,4 @@ app.get('/', (req, res) => {
 
 app.listen(port, ()=> {
     console.log(`complain portal server running at ${port}` );
-}) 
+})
