@@ -171,7 +171,7 @@ async function run(){
             }
         } )
 
-        // load single review
+        // load single review for updating
         app.get('/reviews/:id', async(req,res)=>{
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
@@ -238,7 +238,7 @@ async function run(){
                         complains: result,
                         totalComplains,
                         currentPage: page,
-                        totalPages: Math.ceil(totalResults / limit)
+                        totalPages: Math.ceil(totalComplains / limit)
                     })
 
                 }
@@ -268,7 +268,13 @@ async function run(){
             }
         });
 
-
+        // delete complain
+        app.delete('/complains/:id', async(req, res)=>{
+            const id = req.params.id;
+            const query = {_id : new ObjectId(id)};
+            const result = await complainCollection.deleteOne(query);
+            res.send(result);
+        })
 
 
 
