@@ -238,7 +238,7 @@ async function run(){
         app.get('/complains', async(req, res)=>{
             const email = req.query.email;
             const page = parseInt(req.query.page) || 1;  // current page start from 1
-            const limit = parseInt(req.query.limit) || 10; // limit data per page
+            const limit = parseInt(req.query.limit) || 20; // limit data per page
             const skip = (page - 1) * limit; // Calculate the number of documents to skip
 
             try{
