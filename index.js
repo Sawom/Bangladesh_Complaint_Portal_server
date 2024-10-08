@@ -235,7 +235,7 @@ async function run(){
         })
 
         // get all complains and email wise user info ++ pagination 
-        // ++ filter by division, district, subdistrict, date 
+        // ++ filter by division, district, subdistrict, problem 
         app.get('/complains', async(req, res)=>{
             const email = req.query.email;
             const page = parseInt(req.query.page) || 1;  // current page start from 1
@@ -257,9 +257,8 @@ async function run(){
                 filters.subDistrict = req.query.subDistrict;
             }
 
-            // date
-            if (req.query.date) {
-                filters.date = new Date(req.query.date) // Use $eq for a single date filter
+            if (req.query.problem) {
+                filters.problem = req.query.problem; 
             }
 
             try{
