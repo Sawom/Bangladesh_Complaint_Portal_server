@@ -234,12 +234,33 @@ async function run(){
             res.send(result);
         })
 
-        // get all complains and email wise user info ++ pagination
+        // get all complains and email wise user info ++ pagination 
+        // ++ filter by division, district, subdistrict, date 
         app.get('/complains', async(req, res)=>{
             const email = req.query.email;
             const page = parseInt(req.query.page) || 1;  // current page start from 1
             const limit = parseInt(req.query.limit) || 20; // limit data per page
             const skip = (page - 1) * limit; // Calculate the number of documents to skip
+
+            const filters = {} // object to store filter condition
+
+            // adding filter parameters
+            if(req.query.division){
+                filters.division = req.query.division;
+            }
+
+            if(req.query.district){
+                filters.district = req.query.district;
+            }
+
+            if(req.query.subDistrict){
+                filters.subDistrict = req.query.subDistrict;
+            }
+
+            // date
+            if (req.query.date) {
+                filters.date = new Date(req.query.date) // Use $eq for a single date filter
+            }
 
             try{
                 let result;
@@ -251,8 +272,8 @@ async function run(){
                 }
                 // all complain data are showed for admin
                 else{
-                    const result = await complainCollection.find().skip(skip).limit(limit).toArray();
-                    const totalComplains = await complainCollection.countDocuments(); // Count for all documents
+                    const result = await complainCollection.find(filters).skip(skip).limit(limit).toArray();
+                    const totalComplains = await complainCollection.countDocuments(filters); // Count for all documents
 
                     // Use return here to stop execution
                     return res.json({
