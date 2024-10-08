@@ -291,6 +291,19 @@ async function run(){
             }
         }  )
 
+        // received complain
+        app.patch('/complains/received/:id', async(req,res)=>{
+            const id =req.params.id;
+            const filter = {_id: new ObjectId(id) };
+            const updateDoc = {
+                $set:{
+                    status: 'received'
+                },
+            }
+            const result = await complainCollection.updateOne(filter, updateDoc)
+            res.send(result);
+        } )
+
         // search complain by id and email. backend search part
         app.get('/search/:query', async (req, res) => {
             try {
