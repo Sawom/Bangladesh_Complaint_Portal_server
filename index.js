@@ -332,6 +332,24 @@ async function run(){
             res.send(result);
         })
 
+        // admin stats
+        app.get('/admin-stats' , async(req, res)=>{
+            const hotline = await hotlineCollection.estimatedDocumentCount();
+            const users = await usersCollection.estimatedDocumentCount();
+            const reviews = await reviewCollection.estimatedDocumentCount();
+            const homereview = await homeReviewCollection.estimatedDocumentCount();
+            const complains = await complainCollection.estimatedDocumentCount();
+
+            res.send({
+                    hotline,
+                    users,
+                    reviews,
+                    homereview,
+                    complains
+                }
+            )
+        })
+
 
     }
     finally{
