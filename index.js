@@ -10,6 +10,24 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// verify jwt middleware
+const verifyJWT = (req, res, next) => {
+  const authorization = req.headers.authorization;
+  if (!authorization) {
+    return res.status(401).send({ error: true, message: 'unauthorized access' });
+  }
+  
+  const token = authorization.split(' ')[1];
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({ error: true, message: 'unauthorized access' })
+    }
+    req.decoded = decoded;
+    next();
+  })
+}
+
 //connection
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.bsdjaxv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0` ;
 
@@ -32,12 +50,32 @@ async function run(){
         const homeReviewCollection = client.db('complainportal').collection('homereview');
         const complainCollection = client.db('complainportal').collection('complains');
 
+        // verify admin
+        const verifyAdmin = async (req, res, next) =>{
+            const email = req.decoded.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            if(user?.role !== 'admin'){
+                return res.status(403).send({ error: true, message: 'forbidden message' });
+            }
+            next();
+        }
+
+        // create jwt token.
+        app.post('/jwt', (req,res)=>{
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '12h'});
+            res.send({token});
+        } )
+
         // all functions
         // get hotlines number
         app.get('/hotlines', async(req, res)=>{
             const result = await hotlineCollection.find().toArray();
             res.send(result);
         } )
+
+
 
         // get home review
         app.get('/homereview', async(req, res)=>{
@@ -344,6 +382,18 @@ async function run(){
             const result = await usersCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
+
+         // check user admin or not
+        app.get('/users/admin/:email', verifyJWT,  async(req, res)=>{
+            const email = req.params.email;
+            if(req.decoded.email !== email){
+                res.send( {admin: false} )
+            }
+            const query = {email : email}
+            const user = await usersCollection.findOne(query);
+            const result = {admin: user?.role === 'admin'}
+            res.send(result);
+        } )
 
         // admin stats
         app.get('/admin-stats' , async(req, res)=>{
