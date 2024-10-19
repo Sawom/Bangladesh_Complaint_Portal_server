@@ -67,8 +67,8 @@ async function run(){
             next();
         }
 
-        // check user admin or not
-        app.get('/users/admin/:email',  async (req, res) => {
+        // *** check user admin or not with jwt token****
+        app.get('/users/admin/:email',verifyToken, async (req, res) => {
             const email = req.params.email;
 
             if (email !== req.decoded.email) {
@@ -118,7 +118,7 @@ async function run(){
         });
 
         // get all users and email wise user info ++ pagination
-        app.get('/users', async(req, res)=>{
+        app.get('/users',  async(req, res)=>{
             console.log(req.headers);
             const email = req.query.email;
             const page = parseInt(req.query.page) || 1;  // current page start from 1
