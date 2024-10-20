@@ -55,13 +55,13 @@ async function run(){
             })
         }
 
-        // use verify admin after verifyToken
+        // use verify admin or user after verifyToken
         const verifyAdmin = async (req, res, next) => {
             const email = req.decoded.email;
             const query = { email: email };
             const user = await usersCollection.findOne(query);
             const isAdmin = user?.role === 'admin';
-            if (!isAdmin) {
+            if (!isAdmin  && req.query.email !== email) {
                 return res.status(403).send({ message: 'forbidden access' });
             }
             next();
@@ -117,8 +117,9 @@ async function run(){
             }
         });
 
+        // working ***********
         // get all users and email wise user info ++ pagination
-        app.get('/users',  async(req, res)=>{
+        app.get('/users', verifyToken, verifyAdmin, async(req, res)=>{
             console.log(req.headers);
             const email = req.query.email;
             const page = parseInt(req.query.page) || 1;  // current page start from 1
@@ -131,7 +132,6 @@ async function run(){
                     const query = {email: email}
                     result = await usersCollection.find(query).toArray();
                     res.send(result);
-
                 }
                 else{
                     const result = await usersCollection.find().skip(skip).limit(limit).toArray();
@@ -154,7 +154,7 @@ async function run(){
 
         } )
 
-        // load single user. need to load single user before put operation
+        // load single user by id. need to load single user before put operation
         app.get('/users/:id', async(req, res)=>{
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
