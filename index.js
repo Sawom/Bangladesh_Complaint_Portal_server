@@ -196,9 +196,24 @@ async function run(){
         // delete user
         app.delete('/users/:id', async(req, res)=>{
             const id = req.params.id;
-            const query = {_id : new ObjectId(id)};
-            const result = await usersCollection.deleteOne(query);
-            res.send(result);
+
+            try{
+                // fetch the user to be deleted by id
+                const userToDelete = await usersCollection.findOne({ _id: new ObjectId(id)  });
+
+                // check if the user's email is asawom250@gmail.com
+                if(userToDelete?.email === 'asawom250@gmail.com'){
+                    return res.status(403).send({ message: "You cannot delete the super Admin." });
+                }
+                
+                // process delete user for other user
+                const query = {_id : new ObjectId(id)};
+                const result = await usersCollection.deleteOne(query);
+                res.send(result);
+            }catch (error) {
+                console.error("Error deleting user:", error);
+                res.status(500).send({ message: "An error occurred while deleting the user." });
+            }
         })
         //********  user part done *********
 
